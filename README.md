@@ -30,7 +30,7 @@ with a Claude Code session already running in agent mode in another terminal via
 
 ```lua
 {
-  "samiroy/code-bridge.nvim",
+  "samir-roy/code-bridge.nvim",
   config = function()
     require('code-bridge').setup()
   end
@@ -41,7 +41,7 @@ with a Claude Code session already running in agent mode in another terminal via
 
 ```lua
 use {
-  "samiroy/code-bridge.nvim",
+  "samir-roy/code-bridge.nvim",
   config = function()
     require('code-bridge').setup()
   end
@@ -52,7 +52,7 @@ use {
 
 Clone this repository to your Neovim configuration directory:
 ```bash
-git clone https://github.com/samiroy/code-bridge.nvim ~/.config/nvim/pack/plugins/start/code-bridge.nvim
+git clone https://github.com/samir-roy/code-bridge.nvim ~/.config/nvim/pack/plugins/start/code-bridge.nvim
 ```
 
 Then add to your `init.lua`:

@@ -33,7 +33,7 @@ INSTALLATION                                          *code-bridge-installation*
 
 Using lazy.nvim: >
     {
-      "samiroy/code-bridge.nvim",
+      "samir-roy/code-bridge.nvim",
       config = function()
         require('code-bridge').setup()
       end
@@ -42,7 +42,7 @@ Using lazy.nvim: >
 
 Using packer.nvim: >
     use {
-      "samiroy/code-bridge.nvim",
+      "samir-roy/code-bridge.nvim",
       config = function()
         require('code-bridge').setup()
       end
@@ -50,7 +50,7 @@ Using packer.nvim: >
 <
 
 Manual installation: >
-    git clone https://github.com/samiroy/code-bridge.nvim \
+    git clone https://github.com/samir-roy/code-bridge.nvim \
       ~/.config/nvim/pack/plugins/start/code-bridge.nvim
 <
 ==============================================================================
