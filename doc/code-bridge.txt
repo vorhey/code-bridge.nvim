@@ -32,11 +32,21 @@ REQUIREMENTS                                          *code-bridge-requirements*
 INSTALLATION                                          *code-bridge-installation*
 
 Using lazy.nvim: >
-    { "samiroy/code-bridge.nvim" }
+    {
+      "samiroy/code-bridge.nvim",
+      config = function()
+        require('code-bridge').setup()
+      end
+    }
 <
 
 Using packer.nvim: >
-    use "samiroy/code-bridge.nvim"
+    use {
+      "samiroy/code-bridge.nvim",
+      config = function()
+        require('code-bridge').setup()
+      end
+    }
 <
 
 Manual installation: >
