@@ -196,12 +196,14 @@ M.claude_query = function(opts)
   end)
 end
 
--- Create user commands
-vim.api.nvim_create_user_command('CodeBridgeTmux', M.send_to_claude_tmux, { range = true })
-vim.api.nvim_create_user_command('CodeBridgeQuery', M.claude_query, { range = true })
-vim.api.nvim_create_user_command('CodeBridgeChat', function(opts)
-  opts.args = 'no-context'
-  M.claude_query(opts)
-end, { range = true })
+-- Setup function for plugin initialization
+M.setup = function()
+  vim.api.nvim_create_user_command('CodeBridgeTmux', M.send_to_claude_tmux, { range = true })
+  vim.api.nvim_create_user_command('CodeBridgeQuery', M.claude_query, { range = true })
+  vim.api.nvim_create_user_command('CodeBridgeChat', function(opts)
+    opts.args = 'no-context'
+    M.claude_query(opts)
+  end, { range = true })
+end
 
 return M
