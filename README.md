@@ -105,7 +105,7 @@ Similar to `:CodeBridgeQuery` but without file context - useful for general ques
 :CodeBridgeChat
 ```
 
-## Tmux Integration
+## Tmux Integration (Optional)
 
 For optimal experience, set up a tmux session with a window named "claude":
 
@@ -126,15 +126,6 @@ The plugin will:
 3. Send the context and switch to that window
 4. Fall back to clipboard if tmux is unavailable
 
-## Example Workflow
-
-1. Open a file in Neovim
-2. Select some lines in visual mode
-3. Run `:CodeBridgeQuery`
-4. Type your question about the selected code
-5. View Claude's response in the chat buffer
-6. Continue the conversation with follow-up queries
-
 ## Key Bindings (Optional)
 
 Add these to your configuration for quick access:
@@ -146,6 +137,15 @@ vim.keymap.set("n", "<leader>cq", ":CodeBridgeQuery<CR>", { desc = "Query claude
 vim.keymap.set("v", "<leader>cq", ":CodeBridgeQuery<CR>", { desc = "Query claude with selection" })
 vim.keymap.set("n", "<leader>cc", ":CodeBridgeChat<CR>", { desc = "Chat with claude" })
 ```
+
+## Example Workflow
+
+1. Open a file in Neovim
+2. Select some lines in visual mode
+3. Run `:CodeBridgeQuery`
+4. Type your question about the selected code
+5. View Claude's response in the chat buffer
+6. Continue the conversation with follow-up queries
 
 ## License
 

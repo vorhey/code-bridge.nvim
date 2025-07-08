@@ -110,8 +110,7 @@ Optional key bindings: >
 ==============================================================================
 EXAMPLES                                                  *code-bridge-examples*
 
-Tmux Setup:
-Set up a tmux session with a claude window: >
+Set up tmux session with a claude window: >
     tmux new-session -d -s coding
     tmux new-window -t coding -n claude
     tmux send-keys -t coding:claude 'claude' Enter
