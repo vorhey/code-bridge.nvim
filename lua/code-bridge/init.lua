@@ -4,6 +4,7 @@ local M = {}
 -- Track the chat buffer and window during the session
 local chat_buffer = nil
 local chat_window = nil
+local running_process = nil
 
 -- Build context string with filename and range
 local function build_context(opts)
@@ -53,7 +54,7 @@ M.send_to_claude_tmux = function(opts)
   if check_shell_error('no claude window') then return end
 
   -- Send context to claude window
-  vim.fn.system('tmux send-keys -t claude "' .. context .. '" Enter')
+  vim.fn.system('tmux send-keys -t claude ' .. vim.fn.shellescape(context) .. ' Enter')
   if check_shell_error("failed to send to claude") then return end
 
   -- Switch to claude window
@@ -130,6 +131,11 @@ M.claude_query = function(opts)
     vim.api.nvim_create_autocmd('BufWipeout', {
       buffer = buf,
       callback = function()
+        -- Terminate running process if exists
+        if running_process then
+          running_process:kill()
+          running_process = nil
+        end
         chat_buffer = nil
         chat_window = nil
       end
@@ -161,8 +167,10 @@ M.claude_query = function(opts)
   local cmd_args = is_reuse and { 'claude', '-c', '-p', full_message } or { 'claude', '-p', full_message }
 
   -- Execute the command asynchronously
-  vim.system(cmd_args, {}, function(result)
+  running_process = vim.system(cmd_args, {}, function(result)
     vim.schedule(function()
+      running_process = nil
+
       if vim.api.nvim_buf_is_valid(buf) then
         local current_lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
 
