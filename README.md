@@ -62,7 +62,7 @@ require('code-bridge').setup()
 
 ## Usage
 
-The plugin provides three main commands:
+The plugin provides the following main commands:
 
 ### `:CodeBridgeTmux`
 
@@ -105,6 +105,43 @@ Similar to `:CodeBridgeQuery` but without file context - useful for general ques
 :CodeBridgeChat
 ```
 
+### `:CodeBridgeHide`
+
+Hides the chat buffer window without clearing the chat history. The chat buffer remains in memory and can be reopened
+with the next query or with the show command.
+
+```vim
+" Hide chat window
+:CodeBridgeHide
+```
+
+### `:CodeBridgeShow`
+
+Shows the chat buffer window if it exists but is hidden.
+
+```vim
+" Show chat window
+:CodeBridgeShow
+```
+
+### `:CodeBridgeWipe`
+
+Clears the chat history and closes the chat. This also cancels any running queries.
+
+```vim
+" Wipe chat and clear history
+:CodeBridgeWipe
+```
+
+### `:CodeBridgeCancelQuery`
+
+Cancels any currently running Claude Code query.
+
+```vim
+" Cancel running query
+:CodeBridgeCancelQuery
+```
+
 ## Tmux Integration (Optional)
 
 For optimal experience, set up a tmux session with a window named "claude":
@@ -136,6 +173,10 @@ vim.keymap.set("v", "<leader>ct", ":CodeBridgeTmux<CR>", { desc = "Send selectio
 vim.keymap.set("n", "<leader>cq", ":CodeBridgeQuery<CR>", { desc = "Query claude with context" })
 vim.keymap.set("v", "<leader>cq", ":CodeBridgeQuery<CR>", { desc = "Query claude with selection" })
 vim.keymap.set("n", "<leader>cc", ":CodeBridgeChat<CR>", { desc = "Chat with claude" })
+vim.keymap.set("n", "<leader>ch", ":CodeBridgeHide<CR>", { desc = "Hide chat window" })
+vim.keymap.set("n", "<leader>cs", ":CodeBridgeShow<CR>", { desc = "Show chat window" })
+vim.keymap.set("n", "<leader>cx", ":CodeBridgeWipe<CR>", { desc = "Wipe chat and clear history" })
+vim.keymap.set("n", "<leader>ck", ":CodeBridgeCancelQuery<CR>", { desc = "Cancel running query" })
 ```
 
 ## Example Workflow

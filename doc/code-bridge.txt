@@ -89,6 +89,23 @@ COMMANDS                                                  *code-bridge-commands*
                             context. Useful for general questions unrelated
                             to the current file.
 
+                                                          *:CodeBridgeHide*
+:CodeBridgeHide             Hide the chat buffer window without clearing the 
+                            chat history. The chat buffer remains in memory 
+                            and can be reopened with the next query or show
+                            command.
+
+                                                          *:CodeBridgeShow*
+:CodeBridgeShow             Show the chat buffer window if it exists but is 
+                            hidden. 
+
+                                                          *:CodeBridgeWipe*
+:CodeBridgeWipe             Wipe the chat buffer and clear the chat history. 
+                            This also cancels any running queries.
+
+                                                          *:CodeBridgeCancelQuery*
+:CodeBridgeCancelQuery      Cancel any currently running Claude Code query. 
+
 ==============================================================================
 CONFIGURATION                                        *code-bridge-configuration*
 
@@ -105,6 +122,14 @@ Optional key bindings: >
                    { desc = "Query claude with selection" })
     vim.keymap.set("n", "<leader>cc", ":CodeBridgeChat<CR>", 
                    { desc = "Chat with claude" })
+    vim.keymap.set("n", "<leader>ch", ":CodeBridgeHide<CR>", 
+                   { desc = "Hide chat window" })
+    vim.keymap.set("n", "<leader>cs", ":CodeBridgeShow<CR>", 
+                   { desc = "Show chat window" })
+    vim.keymap.set("n", "<leader>cx", ":CodeBridgeWipe<CR>", 
+                   { desc = "Clear history and close chat" })
+    vim.keymap.set("n", "<leader>ck", ":CodeBridgeCancelQuery<CR>", 
+                   { desc = "Cancel running query" })
 <
 
 ==============================================================================

@@ -107,6 +107,7 @@ M.claude_query = function(opts)
       chat_window = vim.api.nvim_get_current_win()
       buf = chat_buffer
       is_reuse = true
+      vim.bo[chat_buffer].bufhidden = 'wipe'
     end
   else
     -- Create new buffer and split window
@@ -204,6 +205,78 @@ M.claude_query = function(opts)
   end)
 end
 
+-- Hide chat buffer without clearing it
+M.hide_chat = function()
+  if chat_window and vim.api.nvim_win_is_valid(chat_window) then
+    -- Change bufhidden to prevent wiping when window closes
+    if chat_buffer and vim.api.nvim_buf_is_valid(chat_buffer) then
+      vim.bo[chat_buffer].bufhidden = 'hide'
+    end
+    vim.api.nvim_win_close(chat_window, false)
+    chat_window = nil
+  end
+end
+
+-- Show chat buffer if it exists
+M.show_chat = function()
+  if chat_buffer and vim.api.nvim_buf_is_valid(chat_buffer) then
+    if chat_window and vim.api.nvim_win_is_valid(chat_window) then
+      -- Window exists, just focus on it
+      vim.api.nvim_set_current_win(chat_window)
+    else
+      -- Buffer exists but window doesn't, create new window
+      vim.cmd('rightbelow vsplit')
+      vim.api.nvim_win_set_buf(0, chat_buffer)
+      chat_window = vim.api.nvim_get_current_win()
+      vim.wo.wrap = true
+      vim.wo.linebreak = true
+      vim.bo[chat_buffer].bufhidden = 'wipe'
+      -- Scroll to bottom
+      local lines = vim.api.nvim_buf_get_lines(chat_buffer, 0, -1, false)
+      vim.api.nvim_win_set_cursor(chat_window, { #lines, 0 })
+    end
+  else
+    print("no chat buffer to show")
+  end
+end
+
+-- Wipe chat buffer and clear it
+M.wipe_chat = function()
+  -- Cancel running query
+  if running_process then
+    running_process:kill()
+    running_process = nil
+  end
+  -- Close the chat window and buffer if it exists
+  if chat_buffer and vim.api.nvim_buf_is_valid(chat_buffer) then
+    vim.api.nvim_buf_delete(chat_buffer, { force = true })
+    chat_buffer = nil
+    chat_window = nil
+  end
+end
+
+-- Cancel running queries
+M.cancel_query = function()
+  if running_process then
+    running_process:kill()
+    running_process = nil
+
+    -- Update the buffer to remove thinking message
+    if chat_buffer and vim.api.nvim_buf_is_valid(chat_buffer) then
+      local current_lines = vim.api.nvim_buf_get_lines(chat_buffer, 0, -1, false)
+      for i = #current_lines, 1, -1 do
+        if current_lines[i] == '## Thinking...' then
+          current_lines[i] = '# Cancelled'
+          break
+        end
+      end
+      vim.api.nvim_buf_set_lines(chat_buffer, 0, -1, false, current_lines)
+    end
+  else
+    print("no running query to cancel")
+  end
+end
+
 -- Setup function for plugin initialization
 M.setup = function()
   vim.api.nvim_create_user_command('CodeBridgeTmux', M.send_to_claude_tmux, { range = true })
@@ -212,6 +285,10 @@ M.setup = function()
     opts.args = 'no-context'
     M.claude_query(opts)
   end, { range = true })
+  vim.api.nvim_create_user_command('CodeBridgeHide', M.hide_chat, {})
+  vim.api.nvim_create_user_command('CodeBridgeShow', M.show_chat, {})
+  vim.api.nvim_create_user_command('CodeBridgeWipe', M.wipe_chat, {})
+  vim.api.nvim_create_user_command('CodeBridgeCancelQuery', M.cancel_query, {})
 end
 
 return M
