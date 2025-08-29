@@ -41,6 +41,7 @@ with a Claude Code session already running in agent mode in another terminal via
         window_name = 'claude',          -- used when target_mode = 'window_name'
         process_name = 'claude',         -- used when target_mode = 'current_window' or 'find_process'
         switch_to_target = true,         -- whether to switch to target after sending
+        find_node_process = true,        -- whether to look for a node.js process
       },
       interactive = {
         use_telescope = true,            -- use telescope for interactive prompts (default: true)
@@ -200,6 +201,8 @@ The plugin works out of the box with no configuration required. The following op
 - `target_mode`: How to find claude (`'window_name'`, `'current_window'`, `'find_process'`)
 - `window_name`: Window name to search for when using `'window_name'` mode (default: `'claude'`)
 - `process_name`: Process name to search for when using `'current_window'` or `'find_process'` mode (default: `'claude'`)
+- `find_node_process`: Some agents like Claude Code run inside a node.js process so enabling this will look for the
+  `'process_name'` in the command of node processes (default: `false`)
 - `switch_to_target`: Whether to switch to the target after sending context (default: `true`)
 - `use_telescope`: Use Telescope for interactive prompts when available (default: `true`)
 
@@ -220,13 +223,14 @@ require('code-bridge').setup({
 })
 ```
 
-**`'current_window'`**: Search for claude process in the current tmux window
+**`'current_window'`**: Search for pane with claude process in the current tmux window
 ```lua
 require('code-bridge').setup({
   tmux = {
     target_mode = 'current_window',
     process_name = 'claude',
     switch_to_target = true,  -- switch to claude pane after sending
+    find_node_process = true, -- agent runs inside node.js process
   }
 })
 ```
