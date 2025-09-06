@@ -1,4 +1,4 @@
-*code-bridge.txt*    Neovim plugin for Claude Code CLI integration
+*code-bridge.txt*    Neovim plugin for coding agent integration via tmux
 
 Author: Samir Roy
 License: GPL v2
@@ -7,26 +7,24 @@ License: GPL v2
 CONTENTS                                                  *code-bridge-contents*
 
 1. Introduction ................................. |code-bridge-introduction|
-2. Requirements ................................. |code-bridge-requirements|  
+2. Requirements ................................. |code-bridge-requirements|
 3. Installation ................................. |code-bridge-installation|
 4. Commands ..................................... |code-bridge-commands|
 5. Configuration ................................ |code-bridge-configuration|
-6. Examples ..................................... |code-bridge-examples|
 
 ==============================================================================
 INTRODUCTION                                          *code-bridge-introduction*
 
-code-bridge.nvim provides seamless integration between Neovim and Claude Code
-CLI. It allows you to send file context and queries directly to Claude from
-within your editor, with support for tmux integration and persistent chat
-buffers.
+code-bridge.nvim sends file context from Neovim to a coding agent
+running in another tmux window. It emits compact markers like
+"@path/to/file" or "@path/to/file#L10-20" and can also send git diffs.
 
 ==============================================================================
 REQUIREMENTS                                          *code-bridge-requirements*
 
-- Neovim 0.7+ (uses modern Lua APIs)
-- Claude Code CLI installed and configured
-- tmux (optional, for automatic window switching)
+- Neovim 0.7+
+- tmux (to target your agent window)
+- An agent process running in tmux (e.g. claude, codex, gemini, qwen)
 
 ==============================================================================
 INSTALLATION                                          *code-bridge-installation*
@@ -40,183 +38,53 @@ Using lazy.nvim: >
     }
 <
 
-Using packer.nvim: >
-    use {
-      "samir-roy/code-bridge.nvim",
-      config = function()
-        require('code-bridge').setup()
-      end
-    }
-<
-
-Manual installation: >
-    git clone https://github.com/samir-roy/code-bridge.nvim \
-      ~/.config/nvim/pack/plugins/start/code-bridge.nvim
-<
 ==============================================================================
 COMMANDS                                                  *code-bridge-commands*
 
-                                                          *:CodeBridgeTmux*
-:CodeBridgeTmux             Send current file context to tmux "claude" window.
-                            Works in both normal and visual mode.
-                            
-                            Context format:
-                            - Normal mode: @filename.ext
-                            - Visual mode: @filename.ext#L1-5
-                            
-                            Behavior:
-                            1. Copies context to clipboard
-                            2. Checks for tmux session
-                            3. Looks for window named "claude"
-                            4. Sends context and switches to claude window
-                            5. Falls back to clipboard if tmux unavailable
+                                                          *:CodeBridgeAddContextAndSwitch*
+:CodeBridgeAddContextAndSwitch  Send current file context. In visual mode,
+                                sends a line range. Switches to the tmux target
+                                window after sending (configurable).
 
-                                                          *:CodeBridgeTmuxAll*
-:CodeBridgeTmuxAll          Send all open buffers as context. In visual mode, 
-                            includes your selection from current file plus all 
-                            other buffers.
+                                                          *:CodeBridgeAddContext*
+:CodeBridgeAddContext           Send current file or selected range as context.
+                                Does not switch tmux windows. Shows a brief
+                                success notification like "added context to <provider>".
 
-                                                          *:CodeBridgeTmuxInteractive*
-:CodeBridgeTmuxInteractive  Edit the context prompt before sending. Uses 
-                            Telescope input if available.
+                                                          *:CodeBridgeDiff*
+:CodeBridgeDiff                 Send current git changes (unstaged), using
+                                output of `git diff HEAD`.
 
-                                                          *:CodeBridgeTmuxAllInteractive*
-:CodeBridgeTmuxAllInteractive Edit all-buffers context prompt before sending.
+                                                          *:CodeBridgeDiffStaged*
+:CodeBridgeDiffStaged           Send staged changes only, using output of
+                                `git diff --cached`.
 
-                                                          *:CodeBridgeTmuxDiff*
-:CodeBridgeTmuxDiff         Send current git changes (unstaged) to the agent.
+                                                          *:CodeBridgeUse*
+:CodeBridgeUse {provider}       Switch the active provider (e.g. `claude`,
+                                `codex`, `gemini`, `qwen`). Autocompletes common
+                                provider names.
 
-                                                          *:CodeBridgeTmuxDiffStaged*
-:CodeBridgeTmuxDiffStaged   Send staged changes only to the agent.
-
-                                                          *:CodeBridgeTmuxRecent*
-:CodeBridgeTmuxRecent       Send recently modified files. In git repos: 
-                            prioritizes pending changes + recent commits. 
-                            Outside git: uses Vim's recent files.
-
-                                                          *:CodeBridgeTmuxRecentInteractive*
-:CodeBridgeTmuxRecentInteractive Edit recent files context before sending.
-
-                                                          *:CodeBridgeQuery*
-:CodeBridgeQuery            Open interactive chat with Claude Code, including
-                            file context. Creates a persistent markdown buffer
-                            for the conversation. Conversation continues if
-                            the buffer remains open and is cleared when the
-                            buffer is closed.
-                            
-                            Features:
-                            - Prompts for user input
-                            - Combines file context with query
-                            - Sends the prompt to Claude Code
-                            - Displays results in reusable chat buffer
-
-                                                          *:CodeBridgeChat*
-:CodeBridgeChat             Similar to |:CodeBridgeQuery| but without file 
-                            context. Useful for general questions unrelated
-                            to the current file.
-
-                                                          *:CodeBridgeHide*
-:CodeBridgeHide             Hide the chat buffer window without clearing the 
-                            chat history. The chat buffer remains in memory 
-                            and can be reopened with the next query or show
-                            command.
-
-                                                          *:CodeBridgeShow*
-:CodeBridgeShow             Show the chat buffer window if it exists but is 
-                            hidden. 
-
-                                                          *:CodeBridgeWipe*
-:CodeBridgeWipe             Wipe the chat buffer and clear the chat history. 
-                            This also cancels any running queries.
-
-                                                          *:CodeBridgeCancelQuery*
-:CodeBridgeCancelQuery      Cancel any currently running Claude Code query. 
+Context format:
+- Normal mode: @filename.ext
+- Visual mode: @filename.ext#Lstart-Lend
 
 ==============================================================================
 CONFIGURATION                                        *code-bridge-configuration*
 
-The plugin works out of the box with no configuration required. 
-
-Configuration options: >
+Example: >
     require('code-bridge').setup({
+      provider = 'claude',
       tmux = {
-        target_mode = 'window_name',     -- 'window_name', 'current_window', 'find_process'
-        window_name = 'claude',          -- used when target_mode = 'window_name'
-        process_name = 'claude',         -- used when target_mode = 'current_window' or 'find_process'
-        switch_to_target = true,         -- whether to switch to target after sending
+        switch_to_target = true,  -- switch to tmux window after sending
       },
-      interactive = {
-        use_telescope = true,            -- use telescope for interactive prompts (default: true)
-      }
+      notify_on_success = true,   -- show success notifications for add commands
     })
 <
 
-target_mode options:
-- 'window_name' (default): Search for a tmux window by name
-- 'current_window': Search for claude process in the current tmux window  
-- 'find_process': Find any pane running a claude process
-
-window_name: Window name to search for when using 'window_name' mode (default: 'claude')
-
-process_name: Process name to search for when using 'current_window' or 'find_process' mode (default: 'claude')
-
-switch_to_target: Whether to switch to the target after sending context (default: true)
-
-use_telescope: Use Telescope for interactive prompts when available (default: true)
-
-Optional key bindings: >
-    -- Basic tmux commands
-    vim.keymap.set("n", "<leader>ct", ":CodeBridgeTmux<CR>", 
-                   { desc = "Send file to claude" })
-    vim.keymap.set("v", "<leader>ct", ":CodeBridgeTmux<CR>", 
-                   { desc = "Send selection to claude" })
-    vim.keymap.set("n", "<leader>ca", ":CodeBridgeTmuxAll<CR>", 
-                   { desc = "Send all buffers to claude" })
-
-    -- Advanced tmux commands
-    vim.keymap.set("n", "<leader>ci", ":CodeBridgeTmuxInteractive<CR>", 
-                   { desc = "Interactive prompt to claude" })
-    vim.keymap.set("n", "<leader>cd", ":CodeBridgeTmuxDiff<CR>", 
-                   { desc = "Send git diff to claude" })
-    vim.keymap.set("n", "<leader>cr", ":CodeBridgeTmuxRecent<CR>", 
-                   { desc = "Send recent files to claude" })
-
-    -- Chat interface
-    vim.keymap.set("n", "<leader>cq", ":CodeBridgeQuery<CR>", 
-                   { desc = "Query claude with context" })
-    vim.keymap.set("v", "<leader>cq", ":CodeBridgeQuery<CR>", 
-                   { desc = "Query claude with selection" })
-    vim.keymap.set("n", "<leader>cc", ":CodeBridgeChat<CR>", 
-                   { desc = "Chat with claude" })
-    vim.keymap.set("n", "<leader>ch", ":CodeBridgeHide<CR>", 
-                   { desc = "Hide chat window" })
-    vim.keymap.set("n", "<leader>cs", ":CodeBridgeShow<CR>", 
-                   { desc = "Show chat window" })
-    vim.keymap.set("n", "<leader>cx", ":CodeBridgeWipe<CR>", 
-                   { desc = "Wipe chat and clear history" })
-    vim.keymap.set("n", "<leader>ck", ":CodeBridgeCancelQuery<CR>", 
-                   { desc = "Cancel running query" })
-<
-
-==============================================================================
-EXAMPLES                                                  *code-bridge-examples*
-
-Set up tmux session with a claude window: >
-    tmux new-session -d -s coding
-    tmux new-window -t coding -n claude
-    tmux send-keys -t coding:claude 'claude' Enter
-
-Workflow Example:
-1. Open file in Neovim
-2. Select lines in visual mode: `V5j`
-3. Run `:CodeBridgeQuery`
-4. Type: "Explain this function"
-5. View response in chat buffer
-6. Continue with follow-up queries
-
-Context Examples:
-- Normal mode in `src/main.py`: `@src/main.py`
-- Visual selection lines 10-15: `@src/main.py#L10-15`
+Notes:
+- Target tmux window name equals the provider (e.g. `claude`).
+- Bracketed paste is automatically enabled for certain providers that need it
+  (currently `gemini`, `qwen`) and is not user-configurable.
 
 ==============================================================================
 vim:tw=78:et:ft=help:norl:

@@ -1,0 +1,12 @@
+:CodeBridgeAddContext	code-bridge.txt	/*:CodeBridgeAddContext*
+:CodeBridgeAddContextAndSwitch	code-bridge.txt	/*:CodeBridgeAddContextAndSwitch*
+:CodeBridgeDiff	code-bridge.txt	/*:CodeBridgeDiff*
+:CodeBridgeDiffStaged	code-bridge.txt	/*:CodeBridgeDiffStaged*
+:CodeBridgeUse	code-bridge.txt	/*:CodeBridgeUse*
+code-bridge-commands	code-bridge.txt	/*code-bridge-commands*
+code-bridge-configuration	code-bridge.txt	/*code-bridge-configuration*
+code-bridge-contents	code-bridge.txt	/*code-bridge-contents*
+code-bridge-installation	code-bridge.txt	/*code-bridge-installation*
+code-bridge-introduction	code-bridge.txt	/*code-bridge-introduction*
+code-bridge-requirements	code-bridge.txt	/*code-bridge-requirements*
+code-bridge.txt	code-bridge.txt	/*code-bridge.txt*
