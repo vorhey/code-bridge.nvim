@@ -4,7 +4,6 @@ local M = {}
 -- Configuration
 local config = {
   provider = "claude",
-  tmux = { switch_to_target = true },
   notify_on_success = true,
 }
 
@@ -118,14 +117,6 @@ local function send_to_tmux_target(message)
     return false
   end
 
-  if config.tmux.switch_to_target then
-    local switch_cmd = "tmux select-window -t " .. target
-
-    vim.fn.system(switch_cmd)
-    if vim.v.shell_error ~= 0 then
-      vim.notify("sent to " .. target .. " but failed to switch - please check manually", vim.log.levels.WARN)
-    end
-  end
   return true
 end
 
@@ -137,22 +128,17 @@ local function send_to_tmux_wrapper(context, error_msg)
   end
 end
 
--- Send file/selection context; switch based on flag
-M.send_to_agent_tmux = function(opts, switch)
+-- Send file or selection context and optionally notify
+M.send_to_agent_tmux = function(opts)
   local context = build_context(opts or { range = 0 })
   if not context or context == "" then
     vim.notify("no file context available", vim.log.levels.WARN)
     return
   end
 
-  local prev_switch = config.tmux.switch_to_target
-  if switch ~= nil then
-    config.tmux.switch_to_target = switch and true or false
-  end
   local ok = send_to_tmux_target(context)
-  config.tmux.switch_to_target = prev_switch
 
-  if ok and switch == false and config.notify_on_success then
+  if ok and config.notify_on_success then
     local provider_name = get_provider_name()
     vim.notify("added context to " .. tostring(provider_name), vim.log.levels.INFO)
   end
@@ -170,13 +156,9 @@ M.setup = function(user_config)
     config = vim.tbl_deep_extend("force", config, user_config)
   end
 
-  vim.api.nvim_create_user_command("CodeBridgeAddContextAndSwitch", function(opts)
-    M.send_to_agent_tmux(opts, true)
-  end, { range = true })
-
-  -- Send current file or selected range without switching tmux, notify
+  -- Send current file or selected range and stay in Neovim
   vim.api.nvim_create_user_command("CodeBridgeAddContext", function(opts)
-    M.send_to_agent_tmux(opts, false)
+    M.send_to_agent_tmux(opts)
   end, { range = true })
 
   vim.api.nvim_create_user_command("CodeBridgeDiff", function()

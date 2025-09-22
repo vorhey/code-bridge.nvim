@@ -6,7 +6,7 @@ This plugin focuses on a simple, reliable workflow:
 - Send the current file (or a visual selection) as a context marker like `@path/to/file` or `@path/to/file#L10-20`.
 - Send your git diffs (unstaged or staged) as context text.
 - Choose the active provider (claude, codex, gemini, qwen) and target its tmux window by name.
-- Stay in Neovim: optional notifications, optional tmux window switching.
+- Stay in Neovim with optional success notifications.
 
 <img src="code-bridge-demo.gif" alt="code-bridge-demo" width="400">
 
@@ -34,9 +34,6 @@ Using lazy.nvim:
   config = function()
     require("code-bridge").setup({
       provider = "claude", -- also the tmux window name
-      tmux = {
-        switch_to_target = true,   -- switch to the tmux window after sending
-      },
       notify_on_success = true,     -- show success toast for add commands
     })
   end,
@@ -47,12 +44,8 @@ Using lazy.nvim:
 
 ### Basic commands
 
-- `:CodeBridgeAddContextAndSwitch`:
-  - Sends current file as `@file`.
-  - In visual mode, sends `@file#Lstart-Lend`.
-
 - `:CodeBridgeAddContext`:
-  - Sends current file or selection as context without switching tmux windows.
+  - Sends current file or selection as context.
   - Shows a brief notification like: “added context to <provider>”.
 
 - `:CodeBridgeDiff`:
@@ -67,10 +60,8 @@ Using lazy.nvim:
 ### Example keymaps (optional)
 
 ```lua
-vim.keymap.set("n", "<leader>ct", ":CodeBridgeAddContextAndSwitch<CR>", { desc = "Send file or selection" })
-vim.keymap.set("v", "<leader>ct", ":CodeBridgeAddContextAndSwitch<CR>", { desc = "Send selection" })
-vim.keymap.set("n", "<leader>cf", ":CodeBridgeAddContext<CR>",       { desc = "Add file/selection (no switch)" })
-vim.keymap.set("v", "<leader>cC", ":CodeBridgeAddContext<CR>",       { desc = "Add selection (no switch)" })
+vim.keymap.set("n", "<leader>ct", ":CodeBridgeAddContext<CR>", { desc = "Send file or selection" })
+vim.keymap.set("v", "<leader>ct", ":CodeBridgeAddContext<CR>", { desc = "Send selection" })
 vim.keymap.set("n", "<leader>cd", ":CodeBridgeDiff<CR>",             { desc = "Send git diff" })
 vim.keymap.set("n", "<leader>cD", ":CodeBridgeDiffStaged<CR>",       { desc = "Send staged diff" })
 ```
@@ -92,7 +83,6 @@ Then in Neovim, `provider = "claude"` will target the tmux window named `claude`
 - `provider` (string): active provider key; also the target tmux window name.
 - Target window name equals the `provider` value (e.g. `claude`).
 - Bracketed paste is auto-enabled for known providers that need it (currently `gemini`, `qwen`).
-- `tmux.switch_to_target` (boolean, default true): switch to the tmux window after sending.
 - `notify_on_success` (boolean, default true): show success notifications for add commands.
 
 ## Health Check

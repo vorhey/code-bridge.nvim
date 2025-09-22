@@ -1,5 +1,4 @@
 :CodeBridgeAddContext	code-bridge.txt	/*:CodeBridgeAddContext*
-:CodeBridgeAddContextAndSwitch	code-bridge.txt	/*:CodeBridgeAddContextAndSwitch*
 :CodeBridgeDiff	code-bridge.txt	/*:CodeBridgeDiff*
 :CodeBridgeDiffStaged	code-bridge.txt	/*:CodeBridgeDiffStaged*
 :CodeBridgeUse	code-bridge.txt	/*:CodeBridgeUse*

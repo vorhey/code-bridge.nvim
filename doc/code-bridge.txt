@@ -41,15 +41,10 @@ Using lazy.nvim: >
 ==============================================================================
 COMMANDS                                                  *code-bridge-commands*
 
-                                                          *:CodeBridgeAddContextAndSwitch*
-:CodeBridgeAddContextAndSwitch  Send current file context. In visual mode,
-                                sends a line range. Switches to the tmux target
-                                window after sending (configurable).
-
                                                           *:CodeBridgeAddContext*
 :CodeBridgeAddContext           Send current file or selected range as context.
-                                Does not switch tmux windows. Shows a brief
-                                success notification like "added context to <provider>".
+                                Shows a brief success notification like
+                                "added context to <provider>".
 
                                                           *:CodeBridgeDiff*
 :CodeBridgeDiff                 Send current git changes (unstaged), using
@@ -74,9 +69,6 @@ CONFIGURATION                                        *code-bridge-configuration*
 Example: >
     require('code-bridge').setup({
       provider = 'claude',
-      tmux = {
-        switch_to_target = true,  -- switch to tmux window after sending
-      },
       notify_on_success = true,   -- show success notifications for add commands
     })
 <
