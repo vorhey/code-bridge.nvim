@@ -5,15 +5,70 @@ local M = {}
 local config = {
   provider = "claude",
   notify_on_success = true,
+  providers = { "claude", "codex", "gemini", "qwen" },
+  bracketed_providers = { gemini = true, qwen = true },
 }
+
+local DEFAULT_PROVIDERS = { "claude", "codex", "gemini", "qwen" }
+
+local function trim(value)
+  if type(value) ~= "string" then
+    return ""
+  end
+  return (value:gsub("^%s+", ""):gsub("%s+$", ""))
+end
 
 local function get_provider_name()
   return config.provider or "claude"
 end
 
+local function set_provider(name, opts)
+  local trimmed = trim(name)
+  if trimmed == "" then
+    return false
+  end
+
+  config.provider = trimmed
+
+  if not (opts and opts.silent) then
+    vim.notify("CodeBridge provider set to " .. trimmed, vim.log.levels.INFO)
+  end
+
+  return true
+end
+
+local function get_provider_choices()
+  local choices = {}
+  local seen = {}
+
+  local function add(name)
+    local candidate = trim(name)
+    if candidate == "" or seen[candidate] then
+      return
+    end
+    table.insert(choices, candidate)
+    seen[candidate] = true
+  end
+
+  add(get_provider_name())
+
+  if type(config.providers) == "table" then
+    for _, value in ipairs(config.providers) do
+      add(value)
+    end
+  end
+
+  for _, value in ipairs(DEFAULT_PROVIDERS) do
+    add(value)
+  end
+
+  return choices
+end
+
 local function get_effective_tmux_idents()
   local window_name = get_provider_name()
-  local bracketed_paste = (window_name == "gemini" or window_name == "qwen")
+  local bracketed_map = config.bracketed_providers or {}
+  local bracketed_paste = bracketed_map[window_name] == true
   return window_name, bracketed_paste
 end
 
@@ -128,6 +183,29 @@ local function send_to_tmux_wrapper(context, error_msg)
   end
 end
 
+M.select_provider_popup = function()
+  if not (vim.ui and vim.ui.select) then
+    vim.notify("vim.ui.select not available; run :CodeBridgeUse <provider> instead", vim.log.levels.WARN)
+    return
+  end
+
+  local providers = get_provider_choices()
+  if #providers == 0 then
+    vim.notify("no providers configured", vim.log.levels.WARN)
+    return
+  end
+
+  vim.ui.select(providers, {
+    prompt = "Select CodeBridge provider",
+    kind = "code_bridge_provider",
+  }, function(choice)
+    if not choice then
+      return
+    end
+    set_provider(choice)
+  end)
+end
+
 -- Send file or selection context and optionally notify
 M.send_to_agent_tmux = function(opts)
   local context = build_context(opts or { range = 0 })
@@ -169,19 +247,20 @@ M.setup = function(user_config)
   end, {})
 
   vim.api.nvim_create_user_command("CodeBridgeUse", function(opts)
-    local name = (opts.args or ""):gsub("%s+$", "")
-    if name == "" then
-      vim.notify("usage: CodeBridgeUse <provider>", vim.log.levels.WARN)
+    local name = trim(opts.args or "")
+    if name ~= "" then
+      if not set_provider(name) then
+        vim.notify("usage: CodeBridgeUse <provider>", vim.log.levels.WARN)
+      end
       return
     end
-    config.provider = name
-    vim.notify("CodeBridge provider set to " .. name, vim.log.levels.INFO)
+
+    M.select_provider_popup()
   end, {
-    nargs = 1,
+    nargs = "?",
     complete = function(ArgLead)
-      local known = { "claude", "codex", "gemini", "qwen" }
       local out = {}
-      for _, k in ipairs(known) do
+      for _, k in ipairs(get_provider_choices()) do
         if ArgLead == "" or k:sub(1, #ArgLead) == ArgLead then
           table.insert(out, k)
         end

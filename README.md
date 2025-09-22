@@ -15,6 +15,7 @@ This plugin focuses on a simple, reliable workflow:
 - Context from file or selection: `@relative/file` or `@relative/file#Lstart-Lend`.
 - Git integration: send `git diff HEAD` or `git diff --cached` output.
 - Tmux targeting by window name per provider.
+- Popup provider selector: choose the active provider from a floating window.
 - Optional bracketed paste support for providers that need it.
 - Quiet by default: uses `vim.notify` for concise messages, no hit-enter prompts.
 
@@ -54,8 +55,9 @@ Using lazy.nvim:
 - `:CodeBridgeDiffStaged`:
   - Sends staged changes: output of `git diff --cached`.
 
-- `:CodeBridgeUse <provider>`:
-  - Switches the active provider at runtime. The tmux window should have the same name.
+- `:CodeBridgeUse`:
+  - With `<provider>` arg: switch the active provider immediately.
+  - Without args: open a popup picker that lists configured providers and the current one.
 
 ### Example keymaps (optional)
 
@@ -81,8 +83,9 @@ Then in Neovim, `provider = "claude"` will target the tmux window named `claude`
 ## Configuration Reference
 
 - `provider` (string): active provider key; also the target tmux window name.
+- `providers` (table of strings, optional): values shown in completion and popup selector. Defaults to `{"claude", "codex", "gemini", "qwen"}` plus the current provider.
 - Target window name equals the `provider` value (e.g. `claude`).
-- Bracketed paste is auto-enabled for known providers that need it (currently `gemini`, `qwen`).
+- Bracketed paste is auto-enabled for known providers that need it; override with `bracketed_providers = { name = true/false }`.
 - `notify_on_success` (boolean, default true): show success notifications for add commands.
 
 ## Health Check

@@ -55,9 +55,11 @@ COMMANDS                                                  *code-bridge-commands*
                                 `git diff --cached`.
 
                                                           *:CodeBridgeUse*
-:CodeBridgeUse {provider}       Switch the active provider (e.g. `claude`,
-                                `codex`, `gemini`, `qwen`). Autocompletes common
-                                provider names.
+:CodeBridgeUse [provider]       Switch the active provider (e.g. `claude`,
+                                `codex`, `gemini`, `qwen`). With an argument
+                                the provider changes immediately; with no
+                                argument a popup selector lists configured and
+                                recent providers.
 
 Context format:
 - Normal mode: @filename.ext
@@ -69,14 +71,17 @@ CONFIGURATION                                        *code-bridge-configuration*
 Example: >
     require('code-bridge').setup({
       provider = 'claude',
+      providers = { 'claude', 'codex', 'gemini', 'qwen' },
       notify_on_success = true,   -- show success notifications for add commands
     })
 <
 
 Notes:
 - Target tmux window name equals the provider (e.g. `claude`).
-- Bracketed paste is automatically enabled for certain providers that need it
-  (currently `gemini`, `qwen`) and is not user-configurable.
+- The `providers` list feeds completion and the popup selector; the current
+  provider is always included as a fallback.
+- `bracketed_providers = { name = true/false }` overrides automatic bracketed
+  paste detection (defaults enable it for `gemini` and `qwen`).
 
 ==============================================================================
 vim:tw=78:et:ft=help:norl:
