@@ -13,7 +13,12 @@ end
 
 local function get_effective_tmux_idents()
   local window_name = get_provider_name()
-  local bracketed_paste = (window_name == "gemini" or window_name == "qwen")
+  local bracketed_paste = (
+    window_name == "gemini"
+    or window_name == "qwen"
+    or window_name == "opencode"
+    or window_name == "groq"
+  )
   return window_name, bracketed_paste
 end
 
@@ -179,7 +184,7 @@ M.setup = function(user_config)
   end, {
     nargs = 1,
     complete = function(ArgLead)
-      local known = { "claude", "codex", "gemini", "qwen" }
+      local known = { "claude", "codex", "gemini", "qwen", "opencode", "groq" }
       local out = {}
       for _, k in ipairs(known) do
         if ArgLead == "" or k:sub(1, #ArgLead) == ArgLead then
