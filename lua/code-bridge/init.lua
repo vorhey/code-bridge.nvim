@@ -5,11 +5,11 @@ local M = {}
 local config = {
   provider = "claude",
   notify_on_success = true,
-  providers = { "claude", "codex", "gemini", "qwen" },
-  bracketed_providers = { gemini = true, qwen = true },
+  providers = { "claude", "codex", "gemini", "qwen", "opencode" },
+  bracketed_providers = { gemini = true, qwen = true, opencode = true },
 }
 
-local DEFAULT_PROVIDERS = { "claude", "codex", "gemini", "qwen" }
+local DEFAULT_PROVIDERS = { "claude", "codex", "gemini", "qwen", "opencode" }
 
 local function trim(value)
   if type(value) ~= "string" then
