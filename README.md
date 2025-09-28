@@ -14,6 +14,7 @@ This plugin focuses on a simple, reliable workflow:
 
 - Context from file or selection: `@relative/file` or `@relative/file#Lstart-Lend`.
 - Git integration: send `git diff HEAD` or `git diff --cached` output.
+- Cursor diagnostic context: send current cursor position with any diagnostics.
 - Tmux targeting by window name per provider.
 - Popup provider selector: choose the active provider from a floating window.
 - Optional bracketed paste support for providers that need it.
@@ -55,6 +56,10 @@ Using lazy.nvim:
 - `:CodeBridgeDiffStaged`:
   - Sends staged changes: output of `git diff --cached`.
 
+- `:CodeBridgeCursorDiagnostic`:
+  - Sends current cursor position with any diagnostics at that line.
+  - Format: `@path/to/file#L42` with diagnostic messages if present.
+
 - `:CodeBridgeUse`:
   - With `<provider>` arg: switch the active provider immediately.
   - Without args: open a popup picker that lists configured providers and the current one.
@@ -66,6 +71,7 @@ vim.keymap.set("n", "<leader>ct", ":CodeBridgeAddContext<CR>", { desc = "Send fi
 vim.keymap.set("v", "<leader>ct", ":CodeBridgeAddContext<CR>", { desc = "Send selection" })
 vim.keymap.set("n", "<leader>cd", ":CodeBridgeDiff<CR>",             { desc = "Send git diff" })
 vim.keymap.set("n", "<leader>cD", ":CodeBridgeDiffStaged<CR>",       { desc = "Send staged diff" })
+vim.keymap.set("n", "<leader>cx", ":CodeBridgeCursorDiagnostic<CR>", { desc = "Send cursor diagnostics" })
 ```
 
 ## Tmux Setup

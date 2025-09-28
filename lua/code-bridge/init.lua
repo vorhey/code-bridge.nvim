@@ -96,6 +96,28 @@ local function build_git_diff_context(staged_only)
   return header .. diff_output, nil
 end
 
+local function build_cursor_diagnostic_context()
+  local file = vim.fn.expand("%")
+  if file == "" then
+    return nil, "no file context available"
+  end
+
+  local pos = vim.api.nvim_win_get_cursor(0)
+  local diagnostics = vim.diagnostic.get(0, { lnum = pos[1] - 1 })
+  local context = "@" .. file .. "#L" .. pos[1]
+
+  if #diagnostics == 0 then
+    return nil, "no diagnostics at cursor"
+  end
+
+  for _, d in ipairs(diagnostics) do
+    local severity = ({ "ERROR", "WARN", "INFO", "HINT" })[d.severity] or "UNKNOWN"
+    context = context .. string.format("\n%s: %s", severity, d.message)
+  end
+
+  return context, nil
+end
+
 local function find_tmux_target()
   local win_name = get_effective_tmux_idents()
   vim.fn.system('tmux list-windows -F "#{window_name}" 2>/dev/null | grep -x ' .. win_name)
@@ -228,6 +250,12 @@ M.send_git_diff_to_tmux = function(staged_only)
   send_to_tmux_wrapper(context, error_msg)
 end
 
+-- Send cursor position diagnostic to tmux
+M.send_cursor_diagnostic_to_tmux = function()
+  local context, error_msg = build_cursor_diagnostic_context()
+  send_to_tmux_wrapper(context, error_msg)
+end
+
 -- Setup
 M.setup = function(user_config)
   if user_config then
@@ -244,6 +272,9 @@ M.setup = function(user_config)
   end, {})
   vim.api.nvim_create_user_command("CodeBridgeDiffStaged", function()
     M.send_git_diff_to_tmux(true)
+  end, {})
+  vim.api.nvim_create_user_command("CodeBridgeCursorDiagnostic", function()
+    M.send_cursor_diagnostic_to_tmux()
   end, {})
 
   vim.api.nvim_create_user_command("CodeBridgeUse", function(opts)
