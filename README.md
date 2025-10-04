@@ -5,7 +5,7 @@ Neovim ↔ tmux bridge for sending file context to a coding agent running in ano
 This plugin focuses on a simple, reliable workflow:
 - Send the current file (or a visual selection) as a context marker like `@path/to/file` or `@path/to/file#L10-20`.
 - Send your git diffs (unstaged or staged) as context text.
-- Choose the active provider (claude, codex, gemini, qwen, opencode, groq) and target its tmux window by name.
+- Choose the active provider (claude, codex, copilot, gemini, qwen, opencode, groq) and target its tmux window by name.
 - Stay in Neovim with optional success notifications.
 
 <img src="code-bridge-demo.gif" alt="code-bridge-demo" width="400">
@@ -24,7 +24,7 @@ This plugin focuses on a simple, reliable workflow:
 
 - Neovim 0.7+
 - tmux (for sending context to an external agent)
-- A provider running in a tmux window you name (e.g. `claude`, `codex`, `gemini`, `qwen`, `opencode`, `groq`)
+- A provider running in a tmux window you name (e.g. `claude`, `codex`, `copilot`, `gemini`, `qwen`, `opencode`, `groq`)
 
 ## Installation
 
@@ -89,7 +89,7 @@ Then in Neovim, `provider = "claude"` will target the tmux window named `claude`
 ## Configuration Reference
 
 - `provider` (string): active provider key; also the target tmux window name.
-- `providers` (table of strings, optional): values shown in completion and popup selector. Defaults to `{"claude", "codex", "gemini", "qwen", "opencode", "groq"}` plus the current provider.
+- `providers` (table of strings, optional): values shown in completion and popup selector. Defaults to `{"claude", "codex", "copilot", "gemini", "qwen", "opencode", "groq"}` plus the current provider.
 - Target window name equals the `provider` value (e.g. `claude`).
 - Bracketed paste is auto-enabled for known providers that need it; override with `bracketed_providers = { name = true/false }`.
 - `notify_on_success` (boolean, default true): show success notifications for add commands.
